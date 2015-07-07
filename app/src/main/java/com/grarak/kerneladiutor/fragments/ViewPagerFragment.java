@@ -23,40 +23,43 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 
 import com.grarak.kerneladiutor.R;
 import com.grarak.kerneladiutor.elements.CustomViewPager;
-import com.grarak.kerneladiutor.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.karim.MaterialTabs;
 
 /**
  * Created by willi on 07.04.15.
  */
 public class ViewPagerFragment extends BaseFragment {
 
+    protected LayoutInflater inflater;
+    protected ViewGroup container;
     private Adapter adapter;
     private CustomViewPager mViewPager;
-    protected View applyOnBootLayout;
-    protected SwitchCompat applyOnBootView;
+    protected MaterialTabs mTabs;
 
-    private List<Fragment> fragments = new ArrayList<>();
+    private List<ViewPagerItem> items = new ArrayList<>();
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, final @Nullable Bundle savedInstanceState) {
-        fragments.clear();
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             final @Nullable Bundle savedInstanceState) {
+        this.inflater = inflater;
+        this.container = container;
+        items.clear();
 
-        View view = inflater.inflate(R.layout.viewpager_fragment, container, false);
-        mViewPager = (CustomViewPager) view.findViewById(R.id.pager);
-        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        View view = getParentView();
+        mViewPager = (CustomViewPager) view.findViewById(R.id.view_pager);
+        mTabs = (MaterialTabs) view.findViewById(R.id.tabs);
+
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
             }
@@ -71,37 +74,25 @@ public class ViewPagerFragment extends BaseFragment {
             }
         });
 
-        if (showApplyOnBoot()) {
-            applyOnBootView = (SwitchCompat) view.findViewById(R.id.apply_on_boot_view);
-            applyOnBootView.setChecked(Utils.getBoolean(getClass().getSimpleName() + "onboot", false, getActivity()));
-            applyOnBootView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    Utils.saveBoolean(ViewPagerFragment.this.getClass().getSimpleName() + "onboot", isChecked, getActivity());
-                    Utils.toast(getString(isChecked ? R.string.apply_on_boot_enabled : R.string.apply_on_boot_disabled,
-                            getActionBar().getTitle()), getActivity());
-                }
-            });
-
-            applyOnBootLayout = view.findViewById(R.id.apply_on_boot_layout);
-            applyOnBootLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    applyOnBootView.setChecked(!applyOnBootView.isChecked());
-                }
-            });
-        } else showApplyOnBoot(false);
-
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                adapter = new Adapter(getChildFragmentManager(), fragments);
+                adapter = new Adapter(getChildFragmentManager(), items);
+                try {
+                    if (isAdded()) preInit(savedInstanceState);
+                } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override
             protected Void doInBackground(Void... params) {
-                init(savedInstanceState);
+                try {
+                    if (isAdded()) init(savedInstanceState);
+                } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                }
                 return null;
             }
 
@@ -110,15 +101,35 @@ public class ViewPagerFragment extends BaseFragment {
                 super.onPostExecute(aVoid);
 
                 mViewPager.setAdapter(adapter);
-                mViewPager.setOffscreenPageLimit(fragments.size());
+                mViewPager.setOffscreenPageLimit(items.size());
                 mViewPager.setCurrentItem(0);
+                try {
+                    if (isAdded()) postInit(savedInstanceState);
+
+                    mTabs.setTextColorSelected(getResources().getColor(R.color.white));
+                    mTabs.setTextColorUnselected(getResources().getColor(R.color.textcolor_dark));
+                    mTabs.setIndicatorColor(getResources().getColor(R.color.white));
+                    mTabs.setViewPager(mViewPager);
+                } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                }
             }
         }.execute();
 
         return view;
     }
 
+    public View getParentView() {
+        return inflater.inflate(R.layout.viewpager, container, false);
+    }
+
+    public void preInit(Bundle savedInstanceState) {
+    }
+
     public void init(Bundle savedInstanceState) {
+    }
+
+    public void postInit(Bundle savedInstanceState) {
     }
 
     public void onSwipe(int page) {
@@ -136,45 +147,69 @@ public class ViewPagerFragment extends BaseFragment {
         mViewPager.allowSwipe(swipe);
     }
 
-    public void addFragment(Fragment fragment) {
-        if (fragments.indexOf(fragment) < 0) {
-            fragments.add(fragment);
+    public void addFragment(ViewPagerItem item) {
+        if (items.indexOf(item) < 0) {
+            items.add(item);
             adapter.notifyDataSetChanged();
         }
     }
 
+    public int getCount() {
+        return items.size();
+    }
+
+    public Fragment getFragment(int position) {
+        return items.get(position).getFragment();
+    }
+
+    public void showTabs(boolean visible) {
+        mTabs.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
     private class Adapter extends FragmentPagerAdapter {
 
-        private final List<Fragment> fragments;
+        private final List<ViewPagerItem> items;
 
-        public Adapter(FragmentManager fragmentManager, List<Fragment> fragments) {
+        public Adapter(FragmentManager fragmentManager, List<ViewPagerItem> items) {
             super(fragmentManager);
-            this.fragments = fragments;
+            this.items = items;
         }
 
         @Override
         public Fragment getItem(int i) {
-            return fragments.get(i);
+            return items.get(i).getFragment();
         }
 
         @Override
         public int getCount() {
-            return fragments.size();
+            return items.size();
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return items.get(position).getTitle() != null ? items.get(position).getTitle() : super.getPageTitle(position);
         }
 
     }
 
-    public boolean showApplyOnBoot() {
-        return true;
-    }
+    public class ViewPagerItem {
 
-    public void showApplyOnBoot(boolean visible) {
-        applyOnBootLayout.findViewById(R.id.apply_on_boot_layout).setVisibility(
-                visible ? View.VISIBLE : View.GONE);
-    }
+        private final Fragment fragment;
+        private final String title;
 
-    public ActionBar getActionBar() {
-        return ((AppCompatActivity) getActivity()).getSupportActionBar();
+        public ViewPagerItem(Fragment fragment, String title) {
+            this.fragment = fragment;
+            this.title = title;
+        }
+
+        public Fragment getFragment() {
+            return fragment;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
     }
 
     @Override

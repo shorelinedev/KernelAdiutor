@@ -30,7 +30,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.grarak.kerneladiutor.R;
-import com.grarak.kerneladiutor.elements.PopupCardItem;
+import com.grarak.kerneladiutor.elements.cards.PopupCardView;
 import com.grarak.kerneladiutor.utils.Utils;
 import com.grarak.kerneladiutor.utils.kernel.CPU;
 import com.grarak.kerneladiutor.utils.root.Control;
@@ -47,12 +47,17 @@ public abstract class PathReaderFragment extends RecyclerViewFragment {
         GOVERNOR, IO
     }
 
+    @Override
+    public boolean showApplyOnBoot() {
+        return false;
+    }
+
     private TextView title;
     private SwipeRefreshLayout refreshLayout;
 
     @Override
     public RecyclerView getRecyclerView() {
-        View view = getParentView(R.layout.swiperefresh_recyclerview);
+        View view = getParentView(R.layout.swiperefresh_fragment);
         title = (TextView) view.findViewById(R.id.title_view);
         refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh_layout);
         refreshLayout.setColorSchemeColors(getResources().getColor(R.color.color_primary));
@@ -63,7 +68,7 @@ public abstract class PathReaderFragment extends RecyclerViewFragment {
             }
         });
 
-        return (RecyclerView) getParentView(R.layout.swiperefresh_recyclerview).findViewById(R.id.recycler_view);
+        return (RecyclerView) view.findViewById(R.id.recycler_view);
     }
 
     @Override
@@ -99,23 +104,23 @@ public abstract class PathReaderFragment extends RecyclerViewFragment {
         for (String file : files) {
             String value = Utils.readFile(path + "/" + file);
             if (value != null && !value.isEmpty() && !value.contains("\n")) {
-                PopupCardItem.DPopupCard mPathCard = new PopupCardItem.DPopupCard(null);
+                PopupCardView.DPopupCard mPathCard = new PopupCardView.DPopupCard(null);
                 mPathCard.setDescription(file);
                 mPathCard.setItem(value);
                 mPathCard.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         boolean freq = CPU.getFreqs().indexOf(Utils.stringToInt(Utils
-                                .readFile(path + "/" + ((PopupCardItem) v).getDescription()))) > -1;
+                                .readFile(path + "/" + ((PopupCardView) v).getDescription()))) > -1;
 
                         if (freq && getType() == PATH_TYPE.GOVERNOR) {
                             String[] values = new String[CPU.getFreqs().size()];
                             for (int i = 0; i < values.length; i++)
                                 values[i] = String.valueOf(CPU.getFreqs().get(i));
-                            showPopupDialog(path + "/" + ((PopupCardItem) v).getDescription(), values);
+                            showPopupDialog(path + "/" + ((PopupCardView) v).getDescription(), values);
                         } else
-                            showDialog(path + "/" + ((PopupCardItem) v).getDescription(),
-                                    ((PopupCardItem) v).getItem());
+                            showDialog(path + "/" + ((PopupCardView) v).getDescription(),
+                                    ((PopupCardView) v).getItem());
                     }
                 });
 

@@ -26,6 +26,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.text.Html;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -34,9 +35,8 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.grarak.kerneladiutor.R;
-import com.grarak.kerneladiutor.elements.PopupCardItem;
+import com.grarak.kerneladiutor.elements.cards.PopupCardView;
 import com.grarak.kerneladiutor.fragments.RecyclerViewFragment;
 import com.grarak.kerneladiutor.utils.Constants;
 import com.grarak.kerneladiutor.utils.Utils;
@@ -60,7 +60,7 @@ public class BuildpropFragment extends RecyclerViewFragment implements View.OnCl
 
     @Override
     public RecyclerView getRecyclerView() {
-        View view = getParentView(R.layout.swiperefresh_recyclerview);
+        View view = getParentView(R.layout.swiperefresh_fragment);
 
         title = (TextView) view.findViewById(R.id.title_view);
         refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh_layout);
@@ -72,16 +72,14 @@ public class BuildpropFragment extends RecyclerViewFragment implements View.OnCl
             }
         });
 
-        FloatingActionButton addButton = (FloatingActionButton) view.findViewById(R.id.add_button);
-        addButton.setOnClickListener(new View.OnClickListener() {
+        view.findViewById(R.id.add_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 addKeyDialog(null, null, false);
             }
         });
 
-        FloatingActionButton backupButton = (FloatingActionButton) view.findViewById(R.id.backup_button);
-        backupButton.setOnClickListener(new View.OnClickListener() {
+        view.findViewById(R.id.backup_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 backup();
@@ -105,20 +103,19 @@ public class BuildpropFragment extends RecyclerViewFragment implements View.OnCl
 
         buildpropItem = Buildprop.getProps();
         for (int i = 0; i < buildpropItem.size(); i++) {
-            PopupCardItem.DPopupCard mPropCard = new PopupCardItem.DPopupCard(null);
+            PopupCardView.DPopupCard mPropCard = new PopupCardView.DPopupCard(null);
             mPropCard.setDescription((String) buildpropItem.keySet().toArray()[i]);
             mPropCard.setItem((String) buildpropItem.values().toArray()[i]);
             mPropCard.setOnClickListener(this);
 
             addView(mPropCard);
         }
+    }
 
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                title.setText(getString(R.string.items_found, buildpropItem.size()));
-            }
-        });
+    @Override
+    public void postInit(Bundle savedInstanceState) {
+        super.postInit(savedInstanceState);
+        title.setText(getString(R.string.items_found, buildpropItem.size()));
     }
 
     @Override
@@ -128,15 +125,15 @@ public class BuildpropFragment extends RecyclerViewFragment implements View.OnCl
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        PopupCardItem popupCardItem = (PopupCardItem) v;
+                        PopupCardView popupCardView = (PopupCardView) v;
                         switch (which) {
                             case 0:
-                                addKeyDialog(popupCardItem.getDescription(),
-                                        popupCardItem.getItem(), true);
+                                addKeyDialog(popupCardView.getDescription().toString(),
+                                        popupCardView.getItem(), true);
                                 break;
                             case 1:
-                                deleteDialog(popupCardItem.getDescription(),
-                                        popupCardItem.getItem());
+                                deleteDialog(popupCardView.getDescription().toString(),
+                                        popupCardView.getItem());
                                 break;
                         }
                     }
@@ -151,7 +148,7 @@ public class BuildpropFragment extends RecyclerViewFragment implements View.OnCl
             removeAllViews();
             buildpropItem = Buildprop.getProps();
             for (int i = 0; i < buildpropItem.size(); i++) {
-                PopupCardItem.DPopupCard mPropCard = new PopupCardItem.DPopupCard(null);
+                PopupCardView.DPopupCard mPropCard = new PopupCardView.DPopupCard(null);
                 mPropCard.setDescription((String) buildpropItem.keySet().toArray()[i]);
                 mPropCard.setItem((String) buildpropItem.values().toArray()[i]);
                 mPropCard.setOnClickListener(BuildpropFragment.this);
@@ -214,18 +211,12 @@ public class BuildpropFragment extends RecyclerViewFragment implements View.OnCl
     }
 
     private void deleteDialog(final String key, final String value) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage(getString(R.string.delete_prop, key)).setNegativeButton(android.R.string.cancel,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                }).setPositiveButton(getString(android.R.string.ok), new DialogInterface.OnClickListener() {
+        Utils.confirmDialog(null, getString(R.string.delete_question, key), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 overwrite(key.trim(), value.trim(), "#" + key.trim(), value.trim());
             }
-        }).show();
+        }, getActivity());
     }
 
     private void backup() {
@@ -268,8 +259,10 @@ public class BuildpropFragment extends RecyclerViewFragment implements View.OnCl
                 Object[] values = buildpropItem.values().toArray();
                 for (int i = 0; i < keys.length; i++)
                     if (((String) keys[i]).contains(newText)) {
-                        PopupCardItem.DPopupCard mPopupCard = new PopupCardItem.DPopupCard(null);
-                        mPopupCard.setDescription((String) keys[i]);
+                        PopupCardView.DPopupCard mPopupCard = new PopupCardView.DPopupCard(null);
+                        mPopupCard.setDescription(newText.isEmpty() ?
+                                (String) keys[i] : Html.fromHtml(((String) keys[i]).replace(newText, "" +
+                                "<b><font color=\"#2A7289\">" + newText + "</font></b>")));
                         mPopupCard.setItem((String) values[i]);
                         mPopupCard.setOnClickListener(BuildpropFragment.this);
 
@@ -280,4 +273,12 @@ public class BuildpropFragment extends RecyclerViewFragment implements View.OnCl
         });
     }
 
+    @Override
+    public boolean onBackPressed() {
+        if (searchItem != null && MenuItemCompat.isActionViewExpanded(searchItem)) {
+            MenuItemCompat.collapseActionView(searchItem);
+            return true;
+        }
+        return false;
+    }
 }

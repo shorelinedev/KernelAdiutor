@@ -57,6 +57,10 @@ public class RootUtils implements Constants {
         return false;
     }
 
+    public static String getKernelVersion() {
+        return runCommand("uname -r");
+    }
+
     public static void mount(boolean writeable, String mountpoint) {
         runCommand(writeable ? "mount -o rw,remount " + mountpoint : "mount -o ro,remount " + mountpoint);
     }
@@ -72,7 +76,7 @@ public class RootUtils implements Constants {
 
     private static SU getSU() {
         if (su == null) su = new SU();
-        if (su.closed) su = new SU();
+        else if (su.closed || su.denied) su = new SU();
         return su;
     }
 

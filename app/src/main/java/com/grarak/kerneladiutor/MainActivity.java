@@ -17,6 +17,7 @@
 package com.grarak.kerneladiutor;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -31,12 +32,17 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import com.grarak.kerneladiutor.elements.DAdapter;
 import com.grarak.kerneladiutor.elements.ScrimInsetsFrameLayout;
@@ -54,16 +60,20 @@ import com.grarak.kerneladiutor.fragments.kernel.LMKFragment;
 import com.grarak.kerneladiutor.fragments.kernel.MiscFragment;
 import com.grarak.kerneladiutor.fragments.kernel.ScreenFragment;
 import com.grarak.kerneladiutor.fragments.kernel.SoundFragment;
+import com.grarak.kerneladiutor.fragments.kernel.ThermalFragment;
 import com.grarak.kerneladiutor.fragments.kernel.VMFragment;
 import com.grarak.kerneladiutor.fragments.kernel.WakeFragment;
 import com.grarak.kerneladiutor.fragments.other.AboutusFragment;
 import com.grarak.kerneladiutor.fragments.other.FAQFragment;
 import com.grarak.kerneladiutor.fragments.other.SettingsFragment;
+import com.grarak.kerneladiutor.fragments.tools.BackupFragment;
 import com.grarak.kerneladiutor.fragments.tools.BuildpropFragment;
 import com.grarak.kerneladiutor.fragments.tools.InitdFragment;
 import com.grarak.kerneladiutor.fragments.tools.ProfileFragment;
 import com.grarak.kerneladiutor.fragments.tools.RecoveryFragment;
+import com.grarak.kerneladiutor.fragments.tools.download.DownloadsFragment;
 import com.grarak.kerneladiutor.utils.Constants;
+import com.grarak.kerneladiutor.utils.Downloads;
 import com.grarak.kerneladiutor.utils.Utils;
 import com.grarak.kerneladiutor.utils.kernel.CPUHotplug;
 import com.grarak.kerneladiutor.utils.kernel.CPUVoltage;
@@ -72,8 +82,11 @@ import com.grarak.kerneladiutor.utils.kernel.KSM;
 import com.grarak.kerneladiutor.utils.kernel.LMK;
 import com.grarak.kerneladiutor.utils.kernel.Screen;
 import com.grarak.kerneladiutor.utils.kernel.Sound;
+import com.grarak.kerneladiutor.utils.kernel.Thermal;
 import com.grarak.kerneladiutor.utils.kernel.Wake;
 import com.grarak.kerneladiutor.utils.root.RootUtils;
+import com.grarak.kerneladiutor.utils.tools.Backup;
+import com.grarak.kerneladiutor.utils.tools.Buildprop;
 
 /**
  * Created by willi on 01.12.14.
@@ -106,53 +119,68 @@ public class MainActivity extends AppCompatActivity implements Constants {
 
     private DAdapter.Adapter mAdapter;
 
+    private boolean pressAgain = true;
+
     /**
      * Current Fragment position
      */
     private int cur_position;
 
-    private AlertDialog betaDialog;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // If there is a previous activity running, kill it
-        if (context != null) {
-            RootUtils.closeSU();
-            ((Activity) context).finish();
-        }
+        if (context != null) ((Activity) context).finish();
         context = this;
 
-        // Check if darktheme is in use and cache it as boolean
-        Utils.DARKTHEME = Utils.getBoolean("darktheme", false, this);
-        if (Utils.DARKTHEME) super.setTheme(R.style.AppThemeDark);
+        // Set english as default language if option is enabled
+        if (Utils.getBoolean("forceenglish", false, this)) Utils.setLocale("en_US", this);
 
-        // Show a dialog if user is running a beta version
-        if (Utils.getBoolean("forceenglish", false, this)) Utils.setLocale("en", this);
-        try {
-            LAUNCH_NAME = getIntent().getStringExtra(LAUNCH_ARG);
-            if (LAUNCH_NAME == null && VERSION_NAME.contains("beta") && Utils.getBoolean("betainfo", true, this))
-                betaDialog = new AlertDialog.Builder(MainActivity.this)
-                        .setMessage(getString(R.string.beta_message, VERSION_NAME))
-                        .setNeutralButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        }).show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        // Check if darktheme is in use and cache it as boolean
+        if (Utils.DARKTHEME = Utils.getBoolean("darktheme", false, this))
+            super.setTheme(R.style.AppThemeDark);
 
         setContentView(R.layout.activity_main);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setView();
+
         if (Utils.DARKTHEME) toolbar.setPopupTheme(R.style.ThemeOverlay_AppCompat_Dark);
         setSupportActionBar(toolbar);
 
-        if (mDrawerLayout != null && mScrimInsetsFrameLayout != null)
-            mDrawerLayout.closeDrawer(mScrimInsetsFrameLayout);
+        String password;
+        if (!(password = Utils.getString("password", "", this)).isEmpty())
+            askPassword(password);
+        else // Use an AsyncTask to initialize everything
+            new Task().execute();
+    }
 
-        // Use an AsyncTask to initialize everything
-        new Task().execute();
+    /**
+     * Dialog which asks the user to enter his password
+     *
+     * @param password current encoded password
+     */
+    private void askPassword(final String password) {
+        LinearLayout linearLayout = new LinearLayout(this);
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
+        linearLayout.setGravity(Gravity.CENTER);
+        linearLayout.setPadding(30, 20, 30, 20);
+
+        final AppCompatEditText mPassword = new AppCompatEditText(this);
+        mPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        mPassword.setHint(getString(R.string.password));
+        linearLayout.addView(mPassword);
+
+        new AlertDialog.Builder(this).setView(linearLayout).setCancelable(false)
+                .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if (mPassword.getText().toString().equals(Utils.decodeString(password)))
+                            new Task().execute();
+                        else {
+                            Utils.toast(getString(R.string.password_wrong), MainActivity.this);
+                            finish();
+                        }
+                    }
+                }).show();
     }
 
     /**
@@ -194,8 +222,8 @@ public class MainActivity extends AppCompatActivity implements Constants {
             ITEMS.add(new DAdapter.Item(getString(R.string.cpu_voltage), new CPUVoltageFragment()));
         if (CPUHotplug.hasCpuHotplug())
             ITEMS.add(new DAdapter.Item(getString(R.string.cpu_hotplug), new CPUHotplugFragment()));
-        //if (Thermal.hasThermal())
-        //    ITEMS.add(new DAdapter.Item(getString(R.string.thermal), new ThermalFragment()));
+        if (Thermal.hasThermal())
+            ITEMS.add(new DAdapter.Item(getString(R.string.thermal), new ThermalFragment()));
         if (GPU.hasGpuControl())
             ITEMS.add(new DAdapter.Item(getString(R.string.gpu), new GPUFragment()));
         if (Screen.hasScreen())
@@ -213,7 +241,14 @@ public class MainActivity extends AppCompatActivity implements Constants {
         ITEMS.add(new DAdapter.Item(getString(R.string.virtual_memory), new VMFragment()));
         ITEMS.add(new DAdapter.Item(getString(R.string.misc_controls), new MiscFragment()));
         ITEMS.add(new DAdapter.Header(getString(R.string.tools)));
-        ITEMS.add(new DAdapter.Item(getString(R.string.build_prop_editor), new BuildpropFragment()));
+        Downloads downloads;
+        if ((downloads = new Downloads(this)).isSupported())
+            ITEMS.add(new DAdapter.Item(getString(R.string.downloads),
+                    DownloadsFragment.newInstance(downloads.getLink())));
+        if (Backup.hasBackup())
+            ITEMS.add(new DAdapter.Item(getString(R.string.backup), new BackupFragment()));
+        if (Buildprop.hasBuildprop())
+            ITEMS.add(new DAdapter.Item(getString(R.string.build_prop_editor), new BuildpropFragment()));
         ITEMS.add(new DAdapter.Item(getString(R.string.profile), new ProfileFragment()));
         ITEMS.add(new DAdapter.Item(getString(R.string.recovery), new RecoveryFragment()));
         ITEMS.add(new DAdapter.Item(getString(R.string.initd), new InitdFragment()));
@@ -227,12 +262,33 @@ public class MainActivity extends AppCompatActivity implements Constants {
      * Define all views
      */
     private void setView() {
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         mScrimInsetsFrameLayout = (ScrimInsetsFrameLayout) findViewById(R.id.scrimInsetsFrameLayout);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerLayout.setStatusBarBackgroundColor(getResources().getColor(R.color.statusbar_color));
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         mDrawerList = (RecyclerView) findViewById(R.id.drawer_list);
         mSplashView = (SplashView) findViewById(R.id.splash_view);
+
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        mLayoutManager.setSmoothScrollbarEnabled(true);
+        mDrawerList.setLayoutManager(mLayoutManager);
+        mDrawerList.setHasFixedSize(true);
+        mDrawerList.setAdapter(new RecyclerView.Adapter() {
+            @Override
+            public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                return null;
+            }
+
+            @Override
+            public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+            }
+
+            @Override
+            public int getItemCount() {
+                return 0;
+            }
+        });
     }
 
     /**
@@ -254,11 +310,6 @@ public class MainActivity extends AppCompatActivity implements Constants {
             }
         });
 
-        LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
-        mLayoutManager.setSmoothScrollbarEnabled(true);
-        mDrawerList.setLayoutManager(mLayoutManager);
-        mDrawerList.setHasFixedSize(true);
-
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, 0, 0);
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         if (Utils.DARKTHEME)
@@ -278,20 +329,12 @@ public class MainActivity extends AppCompatActivity implements Constants {
         private boolean hasBusybox;
 
         @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            setView();
-        }
-
-        @Override
         protected Void doInBackground(Void... params) {
             // Check root access and busybox installation
             if (RootUtils.rooted()) hasRoot = RootUtils.rootAccess();
             if (hasRoot) hasBusybox = RootUtils.busyboxInstalled();
 
             if (hasRoot && hasBusybox) {
-                RootUtils.su = new RootUtils.SU();
-
                 // Set permissions to specific files which are not readable by default
                 String[] writePermission = {LMK_MINFREE};
                 for (String file : writePermission)
@@ -316,8 +359,10 @@ public class MainActivity extends AppCompatActivity implements Constants {
 
                 if (hasRoot)
                     // Root is there but busybox is missing
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=stericson.busybox")));
-                if (betaDialog != null) betaDialog.dismiss();
+                    try {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=stericson.busybox")));
+                    } catch (ActivityNotFoundException ignored) {
+                    }
                 cancel(true);
                 finish();
                 return;
@@ -326,8 +371,25 @@ public class MainActivity extends AppCompatActivity implements Constants {
             mSplashView.finish();
             setInterface();
 
+            try {
+                // Show a dialog if user is running a beta version
+                if ((LAUNCH_NAME = getIntent().getStringExtra(LAUNCH_ARG)) == null
+                        && VERSION_NAME.contains("beta")
+                        && Utils.getBoolean("betainfo", true, MainActivity.this))
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setMessage(getString(R.string.beta_message, VERSION_NAME))
+                            .setNeutralButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            }).show();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             // If LAUNCH_NAME is not null then open the fragment which matches with the string
-            if (LAUNCH_NAME == null) LAUNCH_NAME = KernelInformationFragment.class.getSimpleName();
+            if (LAUNCH_NAME == null)
+                LAUNCH_NAME = KernelInformationFragment.class.getSimpleName();
             for (int i = 0; i < ITEMS.size(); i++) {
                 if (ITEMS.get(i).getFragment() != null)
                     if (LAUNCH_NAME.equals(ITEMS.get(i).getFragment().getClass().getSimpleName()))
@@ -356,8 +418,23 @@ public class MainActivity extends AppCompatActivity implements Constants {
     public void onBackPressed() {
         try {
             if (!ITEMS.get(cur_position).getFragment().onBackPressed())
-                if (!mDrawerLayout.isDrawerOpen(mScrimInsetsFrameLayout)) super.onBackPressed();
-                else mDrawerLayout.closeDrawer(mScrimInsetsFrameLayout);
+                if (!mDrawerLayout.isDrawerOpen(mScrimInsetsFrameLayout)) {
+                    if (pressAgain) {
+                        Utils.toast(getString(R.string.press_back_again), this);
+                        pressAgain = false;
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    Thread.sleep(2000);
+                                    pressAgain = true;
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }).start();
+                    } else super.onBackPressed();
+                } else mDrawerLayout.closeDrawer(mScrimInsetsFrameLayout);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -370,13 +447,6 @@ public class MainActivity extends AppCompatActivity implements Constants {
     protected void onDestroy() {
         RootUtils.closeSU();
         super.onDestroy();
-    }
-
-    /**
-     * Let other Classes kill this activity
-     */
-    public static void destroy() {
-        if (context != null) ((Activity) context).finish();
     }
 
     /**

@@ -27,8 +27,8 @@
   <string name="kernel">Kernel</string>
   <string name="tools">Verktyg</string>
   <string name="other">Övrigt</string>
-  <string name="frequency_table">Frekvenstabell</string>
   <string name="kernel_information">Information om din Kernel</string>
+  <string name="frequency_table">Frekvenstabell</string>
   <string name="cpu">CPU</string>
   <string name="cpu_voltage">Spänning CPU</string>
   <string name="cpu_hotplug">CPU Hotplug</string>
@@ -42,6 +42,7 @@
   <string name="low_memory_killer">Minneshantering</string>
   <string name="virtual_memory">Virtuellt Minne</string>
   <string name="misc_controls">Övriga Kontrollenheter</string>
+  <string name="backup">Säkerhetskopiera</string>
   <string name="build_prop_editor">Build prop Editor</string>
   <string name="profile">Profiler</string>
   <string name="recovery">Återställning</string>
@@ -82,8 +83,6 @@
   <string name="disabled">Inaktiverad</string>
   <string name="enabled">Aktiverad</string>
   <string name="aggressive">Aggressiv</string>
-  <string name="temp_limit">Temperaturgräns</string>
-  <string name="temp_limit_summary">Om temperaturen stiger över gränsen så kommer CPU frekvensen strypas för att sänka temperaturen.</string>
   <string name="cpu_boost">CPU Boost</string>
   <string name="debug_mask">Felsökningsmask</string>
   <string name="debug_mask_summary">Tillåter dig att aktivera felsökningsmasken för uppgifter som har med CPU Boost att göra.</string>
@@ -142,6 +141,8 @@
   <string name="delay_summary">Tid mellan kontroller.</string>
   <string name="pause">Pausa</string>
   <string name="sampling_rate">Samplingsfrekvens</string>
+  <string name="temp_limit">Temperaturgräns</string>
+  <string name="temp_limit_summary">Om temperaturen stiger över gränsen så kommer CPU frekvensen strypas för att sänka temperaturen.</string>
   <string name="gpu_max_freq">Högsta frekvensen för GPU:n</string>
   <string name="gpu_max_freq_summary">Ange den högsta frekvensen som GPU:n skalar upp till.</string>
   <string name="simple_gpu_algorithm">Enkel GPU Algoritm</string>
@@ -203,12 +204,10 @@
   <string name="network">Nätverk</string>
   <string name="smb135x_wakelock_summary">Förhindra \"wakelock\" när ström är frånkopplad.</string>
   <string name="sensor_ind_wakelock_summary">Förhindra \"wakelock\" när \"Ambient Display\" inaktiveras.</string>
-  <string name="backup">Säkerhetskopiera</string>
+  <string name="delete">Radera</string>
   <string name="add">Lägg till</string>
   <string name="edit">Ändra</string>
-  <string name="delete">Radera</string>
   <string name="value">Värde</string>
-  <string name="delete_prop">Radera %s?</string>
   <string name="backup_created">Säkerhetskopia har skapats i %s.</string>
   <string name="search">Sök</string>
   <string name="profile_description">Dina inställningar sparas när du lägger till en profil. Du kan använda dem senare.</string>
@@ -222,7 +221,6 @@
   <string name="show_toast">Visa avisering</string>
   <string name="test">Testa</string>
   <string name="test_summary">Testa tillämpa vid uppstart (med fördröjning). Om inget händer så har inga inställningar sparats.</string>
-  <string name="hide_apply_on_boot">Dölj tillämpa vid uppstart</string>
   <string name="enable_apply_on_boot_first">Du måste aktivera tillämpa vid uppstart för minst en sektion först.</string>
   <string name="debugging">Felsökning</string>
   <string name="logcat_summary">Kopiera logcat till /sdcard/logcat.txt</string>

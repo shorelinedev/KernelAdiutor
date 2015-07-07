@@ -19,12 +19,10 @@ package com.grarak.kerneladiutor.fragments.kernel;
 import android.os.Bundle;
 
 import com.grarak.kerneladiutor.R;
-import com.grarak.kerneladiutor.elements.CardViewItem;
-import com.grarak.kerneladiutor.elements.SeekBarCardView;
-import com.grarak.kerneladiutor.elements.SwitchCardView;
+import com.grarak.kerneladiutor.elements.cards.CardViewItem;
+import com.grarak.kerneladiutor.elements.cards.SeekBarCardView;
+import com.grarak.kerneladiutor.elements.cards.SwitchCardView;
 import com.grarak.kerneladiutor.fragments.RecyclerViewFragment;
-import com.grarak.kerneladiutor.utils.Constants;
-import com.grarak.kerneladiutor.utils.Utils;
 import com.grarak.kerneladiutor.utils.kernel.KSM;
 
 import java.util.ArrayList;
@@ -33,15 +31,14 @@ import java.util.List;
 /**
  * Created by willi on 27.12.14.
  */
-public class KSMFragment extends RecyclerViewFragment implements Constants,
-        SwitchCardView.DSwitchCard.OnDSwitchCardListener, SeekBarCardView.DSeekBarCardView.OnDSeekBarCardListener {
+public class KSMFragment extends RecyclerViewFragment implements SwitchCardView.DSwitchCard.OnDSwitchCardListener,
+        SeekBarCardView.DSeekBarCard.OnDSeekBarCardListener {
 
     private CardViewItem.DCardView[] mInfos;
 
     private SwitchCardView.DSwitchCard mEnableKsmCard, mDeferredTimerCard;
 
-    private List<String> mPagesToScanValues = new ArrayList<>(), mSleepMillisecondsValues = new ArrayList<>();
-    private SeekBarCardView.DSeekBarCardView mPagesToScanCard, mSleepMillisecondsCard;
+    private SeekBarCardView.DSeekBarCard mPagesToScanCard, mSleepMillisecondsCard;
 
     @Override
     public void init(Bundle savedInstanceState) {
@@ -52,14 +49,15 @@ public class KSMFragment extends RecyclerViewFragment implements Constants,
     }
 
     private void ksmInfoInit() {
-        mInfos = new CardViewItem.DCardView[KSM_INFOS.length];
-        for (int i = 0; i < mInfos.length; i++) {
-            mInfos[i] = new CardViewItem.DCardView();
-            mInfos[i].setTitle(getResources().getStringArray(R.array.ksm_infos)[i]);
-            mInfos[i].setDescription(String.valueOf(KSM.getInfos(i)));
+        mInfos = new CardViewItem.DCardView[KSM.getInfoLength()];
+        String[] titles = getResources().getStringArray(R.array.ksm_infos);
+        for (int i = 0; i < mInfos.length; i++)
+            if (KSM.hasInfo(i)) {
+                mInfos[i] = new CardViewItem.DCardView();
+                mInfos[i].setTitle(titles[i]);
 
-            addView(mInfos[i]);
-        }
+                addView(mInfos[i]);
+            }
     }
 
     private void ksmInit() {
@@ -82,23 +80,24 @@ public class KSMFragment extends RecyclerViewFragment implements Constants,
         }
 
         if (KSM.hasPagesToScan()) {
-            mPagesToScanValues.clear();
-            for (int i = 0; i < 1025; i++) mPagesToScanValues.add(String.valueOf(i));
-            mPagesToScanCard = new SeekBarCardView.DSeekBarCardView(mPagesToScanValues);
+            List<String> list = new ArrayList<>();
+            for (int i = 0; i < 1025; i++) list.add(String.valueOf(i));
+
+            mPagesToScanCard = new SeekBarCardView.DSeekBarCard(list);
             mPagesToScanCard.setTitle(getString(R.string.ksm_pages_to_scan));
-            mPagesToScanCard.setProgress(mPagesToScanValues.indexOf(String.valueOf(KSM.getPagesToScan())));
+            mPagesToScanCard.setProgress(KSM.getPagesToScan());
             mPagesToScanCard.setOnDSeekBarCardListener(this);
 
             addView(mPagesToScanCard);
         }
 
         if (KSM.hasSleepMilliseconds()) {
-            mSleepMillisecondsValues.clear();
-            for (int i = 0; i < 5001; i++) mSleepMillisecondsValues.add(i + getString(R.string.ms));
-            mSleepMillisecondsCard = new SeekBarCardView.DSeekBarCardView(mSleepMillisecondsValues);
+            List<String> list = new ArrayList<>();
+            for (int i = 0; i < 5001; i++) list.add(i + getString(R.string.ms));
+
+            mSleepMillisecondsCard = new SeekBarCardView.DSeekBarCard(list);
             mSleepMillisecondsCard.setTitle(getString(R.string.ksm_sleep_milliseconds));
-            mSleepMillisecondsCard.setProgress(mSleepMillisecondsValues.indexOf(KSM.getSleepMilliseconds()
-                    + getString(R.string.ms)));
+            mSleepMillisecondsCard.setProgress(KSM.getSleepMilliseconds());
             mSleepMillisecondsCard.setOnDSeekBarCardListener(this);
 
             addView(mSleepMillisecondsCard);
@@ -108,28 +107,26 @@ public class KSMFragment extends RecyclerViewFragment implements Constants,
 
     @Override
     public void onChecked(SwitchCardView.DSwitchCard dSwitchCard, boolean checked) {
-        if (dSwitchCard == mEnableKsmCard) KSM.activateKSM(checked, getActivity());
+        if (dSwitchCard == mEnableKsmCard) KSM.activateKsm(checked, getActivity());
         else if (dSwitchCard == mDeferredTimerCard)
             KSM.activateDeferredTimer(checked, getActivity());
     }
 
     @Override
-    public void onChanged(SeekBarCardView.DSeekBarCardView dSeekBarCardView, int position) {
+    public void onChanged(SeekBarCardView.DSeekBarCard dSeekBarCard, int position) {
     }
 
     @Override
-    public void onStop(SeekBarCardView.DSeekBarCardView dSeekBarCardView, int position) {
-        if (dSeekBarCardView == mPagesToScanCard)
-            KSM.setPagesToScan(Utils.stringToInt(mPagesToScanValues.get(position)), getActivity());
-        else if (dSeekBarCardView == mSleepMillisecondsCard)
-            KSM.setSleepMilliseconds(Utils.stringToInt(mSleepMillisecondsValues.get(position)
-                    .replace(getString(R.string.ms), "")), getActivity());
+    public void onStop(SeekBarCardView.DSeekBarCard dSeekBarCard, int position) {
+        if (dSeekBarCard == mPagesToScanCard) KSM.setPagesToScan(position, getActivity());
+        else if (dSeekBarCard == mSleepMillisecondsCard)
+            KSM.setSleepMilliseconds(position, getActivity());
     }
 
     @Override
     public boolean onRefresh() {
-        for (int i = 0; i < KSM_INFOS.length; i++)
-            mInfos[i].setDescription(String.valueOf(KSM.getInfos(i)));
+        for (int i = 0; i < mInfos.length; i++)
+            if (mInfos[i] != null) mInfos[i].setDescription(KSM.getInfo(i));
         return true;
     }
 

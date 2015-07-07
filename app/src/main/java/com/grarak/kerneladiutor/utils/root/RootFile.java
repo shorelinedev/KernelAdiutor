@@ -53,14 +53,18 @@ public class RootFile {
     }
 
     public List<String> list() {
-        String[] files = RootUtils.runCommand("ls " + file).split("\\r?\\n");
         List<String> list = new ArrayList<>();
-
-        // Make sure the file exists
-        for (String file : files)
-            if (file != null && !file.isEmpty() && Utils.existFile(this.file + "/" + file))
-                list.add(file);
+        String files = RootUtils.runCommand("ls " + file);
+        if (files != null)
+            // Make sure the file exists
+            for (String file : files.split("\\r?\\n"))
+                if (file != null && !file.isEmpty() && Utils.existFile(this.file + "/" + file))
+                    list.add(file);
         return list;
+    }
+
+    public boolean isEmpty() {
+        return RootUtils.runCommand("find " + file + " -mindepth 1 | read || echo false").equals("false");
     }
 
     public boolean exists() {

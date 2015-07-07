@@ -8,6 +8,7 @@
   <string name="cancel">Prekliči</string>
   <string name="current_value_not_supported">Vrednost ni podprta</string>
   <string name="beta_message">Hvala, da ste beta preizkuševalec/-ka! Če imate kakršne koli težave prosim ne oklevajte in mi pišete. Trenutno uporabljate različico %s.</string>
+  <string name="went_wrong">Nekaj je šlo narobe!</string>
   <string name="select_file">Izberite %s?</string>
   <string name="no_files">Ni datotek na tej lokaciji.</string>
   <string name="apply_on_boot">Uporabi ob zagonu</string>
@@ -27,8 +28,8 @@
   <string name="kernel">Kernel</string>
   <string name="tools">Orodja</string>
   <string name="other">Drugo</string>
-  <string name="frequency_table">Tabela frekvenc</string>
   <string name="kernel_information">Kernel informacije</string>
+  <string name="frequency_table">Tabela frekvenc</string>
   <string name="cpu">CPE</string>
   <string name="cpu_voltage">CPE napetost</string>
   <string name="cpu_hotplug">CPE hotplug</string>
@@ -42,6 +43,7 @@
   <string name="low_memory_killer">Sproščanje pomanjkanja spomina</string>
   <string name="virtual_memory">Navidezni pomnilnik</string>
   <string name="misc_controls">Napredni nadzor</string>
+  <string name="backup">Varnostno kopiranje</string>
   <string name="build_prop_editor">Build.prop urejevalec</string>
   <string name="profile">Profil</string>
   <string name="recovery">Recovery</string>
@@ -82,8 +84,6 @@
   <string name="disabled">Onemogočen</string>
   <string name="enabled">Omogočen</string>
   <string name="aggressive">Agresiven</string>
-  <string name="temp_limit">Temperaturna meja</string>
-  <string name="temp_limit_summary">Če temperatura zraste, bo termal povišal frekvenco CPE za znižanje temperature.</string>
   <string name="cpu_boost">CPE pospešek</string>
   <string name="debug_mask">Razhroščevalna maska</string>
   <string name="debug_mask_summary">Omogoča, da aktivirate razhroščevalno masko za operacije CPE pospeška.</string>
@@ -195,6 +195,8 @@
   <string name="sampling_rate">Stopnja vzorčenja</string>
   <string name="cpu_down_rate">Hitrost CPE navzdol</string>
   <string name="cpu_up_rate">Hitrost CPE navzgor</string>
+  <string name="temp_limit">Temperaturna meja</string>
+  <string name="temp_limit_summary">Če temperatura zraste, bo termal povišal frekvenco CPE za znižanje temperature.</string>
   <string name="gpu_2d_cur_freq">GPE 2D trenutna frekvenca</string>
   <string name="gpu_cur_freq">Trenutna frekvenca GPE</string>
   <string name="gpu_2d_max_freq">GPE 2D najvišja frekvenca</string>
@@ -378,14 +380,13 @@
   <string name="wlan_wakelock_summary">Prepreči wlan wakelock.</string>
   <string name="wlan_rx_wakelock_divider">wlan_rx Wakelock delilnik</string>
   <string name="msm_hsic_wakelock_divider">msm_hsic Wakelock delilnik</string>
+  <string name="google_plus">Google Plus</string>
+  <string name="delete">Izbriši</string>
   <string name="items_found">%d najdenih predmetov</string>
-  <string name="backup">Varnostno kopiranje</string>
   <string name="add">Dodaj</string>
   <string name="edit">Uredi</string>
-  <string name="delete">Izbriši</string>
   <string name="key">Ključ</string>
   <string name="value">Vrednost</string>
-  <string name="delete_prop">Izbriši %s?</string>
   <string name="backup_created">Varnostna kopija je bila ustvarjena v %s.</string>
   <string name="search">Išči</string>
   <string name="no_profiles">Ni profilov</string>
@@ -393,7 +394,6 @@
   <string name="name">Ime</string>
   <string name="apply">Uporabi</string>
   <string name="no_settings">Ni najdenih nastavitev!</string>
-  <string name="empty_name">Ime je prazno</string>
   <string name="press_again_to_apply">Pritisnite znova za uporabo.</string>
   <string name="applied">Uporabljeno</string>
   <string name="reboot">Ponovni zagon</string>
@@ -406,7 +406,6 @@
   <string name="wipe_data">Počisti podatke</string>
   <string name="wipe_cache">Počisti predpomnilnik</string>
   <string name="flash_zip">Namesti zip</string>
-  <string name="went_wrong">Nekaj je šlo narobe!</string>
   <string name="flash_now">Namestite zdaj</string>
   <string name="flash_now_confirm">Ali želite zagnati izbrana dejanja? Naprava se bo zagnala v Recovery in dejanja se bodo izvedla v vrstnem redu, kot ste jih dodali.</string>
   <string name="add_action_first">Najprej morate dodati dejanje.</string>
@@ -426,8 +425,6 @@
   <string name="show_toast">Pokaži toast obvestilo</string>
   <string name="test">Preizkus</string>
   <string name="test_summary">Preizkusi uporabo ob zagonu (z zamikom). Če se nič ne zgodi ni shranjenih nastavitev.</string>
-  <string name="hide_apply_on_boot">Skrij Uporaba ob zagonu</string>
-  <string name="hide_apply_on_boot_summary">Skrij pogled pri pomiku navzdol.</string>
   <string name="enable_apply_on_boot_first">Uporabo ob zagonu morate najprej omogočiti vsaj za en odsek.</string>
   <string name="debugging">Razhroščevanje</string>
   <string name="logcat">Logcat</string>
@@ -448,7 +445,6 @@
   <string name="add_new_features_summary">To je težko reči. Trudim se dodati vse funkcije, vendar je to aplikacijo težko narediti univerzalno za vse naprave. Imam le Samsung Galaxy S4 (I9500) in HTC Desire 816, zato mi prosim oprostite, če funkcije ne bodo takoj združene.</string>
   <string name="license">Licenca</string>
   <string name="app_license">Kernel Adiutor je licenciran pod Apache licenco, različica 2.0, in uporablja naslednje knjižnice</string>
-  <string name="support_v13">v13 Support Library</string>
   <string name="appcompat_v7">v7 Appcompat Library</string>
   <string name="cardview_v7">v7 Cardview Library</string>
   <string name="recyclerview_v7">v7 Recyclerview Library</string>
@@ -459,7 +455,6 @@
   <string name="open_source_summary">Aplikacija je odprtokodna. Preverite na moji Github strani.</string>
   <string name="feature_request">Zaželjene funkcije</string>
   <string name="feature_request_summary">Želite več funkcij? Odprite nov issue na Github in mi povejte vaše ideje.</string>
-  <string name="google_plus">Google Plus</string>
   <string name="google_plus_summary">Pridružite se naši skupnosti.</string>
   <string name="translation">Prevod</string>
   <string name="translation_summary">Pomagajte mi prevesti to aplikacijo!</string>

@@ -9,7 +9,11 @@
     <string name="current_value_not_supported">Current value is not supported</string>
     <string name="beta_message">Thank you for being a beta tester! If you get any problems, please don\'t hesitate contacting me. You are currently running version %s.</string>
     <string name="select_picture">Select Picture</string>
-    <string name="default_picture">Default Picture</string>
+    <string name="no_picture">No Picture</string>
+    <string name="went_wrong">Something went wrong!</string>
+    <string name="password">Password</string>
+    <string name="password_wrong">Password is wrong</string>
+    <string name="press_back_again">Press back again to leave</string>
 
     <!-- FileBrowser -->
     <string name="select_file">Select %s?</string>
@@ -31,6 +35,7 @@
     <string name="mb">MB</string>
     <string name="min">min</string>
     <string name="sec">sec</string>
+    <string name="ma">mA</string>
 
     <!-- Special signs -->
     <string name="minus" translatable="false">-</string>
@@ -43,8 +48,9 @@
     <string name="other">Other</string>
 
     <!-- Tabs -->
-    <string name="frequency_table">Frequency Table</string>
+    <string name="downloads">Downloads</string>
     <string name="kernel_information">Kernel Information</string>
+    <string name="frequency_table">Frequency Table</string>
     <string name="cpu">CPU</string>
     <string name="cpu_voltage">CPU Voltage</string>
     <string name="cpu_hotplug">CPU Hotplug</string>
@@ -59,6 +65,7 @@
     <string name="low_memory_killer">Low Memory Killer</string>
     <string name="virtual_memory">Virtual Memory</string>
     <string name="misc_controls">Misc Controls</string>
+    <string name="backup">Backup</string>
     <string name="build_prop_editor">Build prop Editor</string>
     <string name="profile">Profile</string>
     <string name="recovery">Recovery</string>
@@ -105,8 +112,9 @@
     <string name="disabled">Disabled</string>
     <string name="enabled">Enabled</string>
     <string name="aggressive">Aggressive</string>
-    <string name="temp_limit">Temperature Limit</string>
-    <string name="temp_limit_summary">If the temperature goes above, the thermal will throttle the CPU frequency to lower the temperature.</string>
+    <string name="cpu_quiet">CPUQuiet</string>
+    <string name="cpu_quiet_summary">CPUQuiet implements pluggable policies for forcing cpu cores into quiescent state. Appropriate policies will save power without hurting performance.</string>
+    <string name="cpu_quiet_governor">CPUQuiet Governor</string>
     <string name="cpu_boost">CPU Boost</string>
     <string name="debug_mask">Debug Mask</string>
     <string name="debug_mask_summary">Allows you to activate debug mask for CPU Boost operations.</string>
@@ -208,7 +216,7 @@
     <string name="screen_off_single_core">Screen off Single Core</string>
     <string name="screen_off_single_core_summary">Use only one core when screen is off.</string>
     <string name="idle_frequency">Idle Frequency</string>
-    <string name="idle_frequency_summary">If this first core is below this frequency, then don\'t plug the other cores.</string>
+    <string name="idle_frequency_summary">If the first core is below this frequency, then don\'t plug the other cores.</string>
     <string name="touch_boost_time">Touch Boost Time</string>
     <string name="boost_frequecy_core">Boost Frequency Core %d</string>
     <string name="start_delay">Start delay</string>
@@ -222,11 +230,73 @@
     <string name="sampling_rate">Sampling Rate</string>
     <string name="cpu_down_rate">CPU Down Rate</string>
     <string name="cpu_up_rate">CPU Up Rate</string>
+    <string name="thunderplug">Thunderplug</string>
+    <string name="thunderplug_summary">An in-kernel replacement for Qualcomm\'s MPDecision. Developed by varunchitre15.</string>
+    <string name="min_cores_screen_off">Min Cores Screen Off</string>
+    <string name="min_cores_screen_off_summary">Minimum number of cores online when screen is off.</string>
+    <string name="endurance_level">Endurance Level</string>
+    <string name="endurance_level_summary">A power saving profile.</string>
+    <string name="quad_core_mode">Quad-Core mode</string>
+    <string name="dual_core_mode">Dual-Core mode</string>
+    <string name="zen_decision">Zen Decision</string>
+    <string name="zen_decision_summary">An in-kernel replacement for Qualcomm\'s MPDecision. Developed by bbedward.</string>
+    <string name="wake_wait_time">Wake Wait Time</string>
+    <string name="wake_wait_time_summary">How long to wait before turning on any cores.</string>
+    <string name="bat_threshold_ignore">Battery Threshold Ignore</string>
+    <string name="bat_threshold_ignore_summary">Don\'t turn on any cores when charge is below the selected capacity.</string>
+    <string name="autosmp">AutoSMP</string>
+    <string name="autosmp_summary">An in-kernel replacement for Qualcomm\'s MPDecision. Developed by mrg666.</string>
+    <string name="downrate_limits">Downrate Limits</string>
+    <string name="uprate_limits">Uprate Limits</string>
+    <string name="cycle_down">Cycle Down</string>
+    <string name="cycle_down_summary">Cycles to wait after the last hotplug event to unplug another core.</string>
+    <string name="cycle_up">Cycle Up</string>
+    <string name="cycle_up_summary">Cycles to wait after the last hotplug event to plug another core.</string>
 
     <!-- Thermal -->
-    <string name="thermal_info">Use only one thermal driver from the following options, using more than at the same time may cause unexpected behavior.</string>
+    <string name="thermal_info">Use only one thermal driver from the following options, using more at the same time may cause unexpected behavior.</string>
     <string name="thermald">Thermald</string>
     <string name="thermald_summary">Stock Qualcomm thermal driver that prevents device from overheating. This should be disabled if current kernel has an alternative.</string>
+    <string name="intellithermal">Intellithermal</string>
+    <string name="intellithermal_summary">An in-kernel replacement for Qualcomm\'s Thermald. Developed by faux123.</string>
+    <string name="intellithermal_optimized">Intellithermal Optimized</string>
+    <string name="intellithermal_optimized_summary">An in-kernel replacement for Qualcomm\'s Thermald. Developed by faux123 and alucard_24.</string>
+    <string name="debug_mask_thermal">Allows you to activate debug mask for thermal operations.</string>
+    <string name="core_control">Core Control</string>
+    <string name="vdd_restriction">VDD Restriction</string>
+    <string name="freq_throttle_temp">Frequency Throttle Temperature</string>
+    <string name="freq_throttle_temp_summary">Temperature to start throttling frequencies.</string>
+    <string name="core_throttle_temp">Core Throttle Temperature</string>
+    <string name="core_throttle_temp_summary">Temperature to start shutting down cores.</string>
+    <string name="core_temp_hysteresis">Core Temperature Hysteresis</string>
+    <string name="freq_step">Frequency Step</string>
+    <string name="immediately_limit_stop">Immediately Limit Stop</string>
+    <string name="poll">Poll</string>
+    <string name="temp_hysteresis">Temperature Hysteresis</string>
+    <string name="thermal_limit_low">Thermal Limit Low</string>
+    <string name="thermal_limit_high">Thermal Limit High</string>
+    <string name="temp_safety">Temperature Safety</string>
+    <string name="msm_thermal">MSM Thermal</string>
+    <string name="msm_thermal_summary">An in-kernel replacement for Qualcomm\'s Thermald. Developed by show-p1984.</string>
+    <string name="allowed_low_low">Phase 1: Allowed Low Low</string>
+    <string name="allowed_low_high">Phase 1: Allowed Low High</string>
+    <string name="allowed_low_freq">Phase 1: Allowed Low Frequency</string>
+    <string name="allowed_mid_low">Phase 2: Allowed Mid Low</string>
+    <string name="allowed_mid_high">Phase 2: Allowed Mid High</string>
+    <string name="allowed_mid_freq">Phase 2: Allowed Mid Frequency</string>
+    <string name="allowed_max_low">Phase 3: Allowed Max Low</string>
+    <string name="allowed_max_high">Phase 3: Allowed Max High</string>
+    <string name="allowed_max_freq">Phase 3: Allowed Max Frequency</string>
+    <string name="check_interval">Check Interval</string>
+    <string name="shutdown_temp">Shutdown Temperature</string>
+    <string name="temp_throttle">Temperature Throttle</string>
+    <string name="temp_throttle_summary">SoC temperature limit toggle.</string>
+    <string name="freq_limit_debug">Frequency Limit Debug</string>
+    <string name="freq_limit_debug_summary">This allows to debug the CPUs throttle when the temperature reaches maximum.</string>
+    <string name="temp_limit_min_freq">Temperature Limit Minimum Frequency</string>
+    <string name="temp_limit_min_freq_summary">The thermal will use this frequency to throttle the maximum temperature.</string>
+    <string name="temp_limit">Temperature Limit</string>
+    <string name="temp_limit_summary">If the temperature goes above, the thermal will throttle the CPU frequency to lower the temperature.</string>
 
     <!-- GPU -->
     <string name="gpu_2d_cur_freq">GPU 2D Current Frequency</string>
@@ -356,6 +426,9 @@
     <string name="usb_fast_charge_summary">Device will charge faster when connected with USB. Replug your charger when changing this option.</string>
     <string name="blx">Battery Life eXtender</string>
     <string name="blx_summary">Set a limit for the capacity to which the battery will be charged by passing a value between 0 and 100.</string>
+    <string name="custom_charge_rate">Charge Rate</string>
+    <string name="charge_rate">Battery Charging Rate</string>
+    <string name="charge_rate_summary">Set Custom Battery Charge Rate. Caution: Exceeding 1250mA may damage your charging driver.</string>
 
     <!-- I/O Scheduler -->
     <string name="internal_storage">Internal Storage</string>
@@ -432,15 +505,46 @@
     <string name="wlan_rx_wakelock_divider">wlan_rx Wakelock Divider</string>
     <string name="msm_hsic_wakelock_divider">msm_hsic Wakelock Divider</string>
 
+    <!-- Downloads -->
+    <string name="logo">Logo</string>
+    <string name="features">Features</string>
+    <string name="loading_counting">Loading %1$d/%2$d</string>
+    <string name="downloading_db">Downloading Database</string>
+    <string name="xda">XDA</string>
+    <string name="github">Github</string>
+    <string name="google_plus">Google Plus</string>
+    <string name="paypal">Paypal</string>
+    <string name="download">download</string>
+    <string name="downloading_counting">%1$s/%2$s</string>
+    <string name="resume">Resume</string>
+    <string name="checking_md5">Checking MD5sum</string>
+    <string name="md5_mismatch">MD5 Mismatch</string>
+    <string name="md5_mismatch_summary">The downloaded file has a different MD5. This has following reasons:\n\n\u2022 The downloaded file is corrupted\n\u2022 The developer has declared a wrong MD5\n\nTry to download the file again. If you still get this error, please contact the developer of this kernel.</string>
+    <string name="download_success">Successfully downloaded %s. Do you want to install it now?</string>
+    <string name="manual_flashing">I will use my hands</string>
+    <string name="file_location">Downloaded file is in %s</string>
+
+    <!-- Backup -->
+    <string name="no_backups">No backups</string>
+    <string name="flash_img">Flash IMG</string>
+    <string name="flashing">Flashing</string>
+    <string name="boot">Boot</string>
+    <string name="fota">Fota</string>
+    <string name="backing_up">Backing up</string>
+    <string name="empty_name">Name is empty!</string>
+    <string name="backup_already_exists">A backup with the same name already exists. Delete it first!</string>
+    <string name="restore">Restore</string>
+    <string name="delete">Delete</string>
+    <string name="overwrite_question">Overwrite %s?</string>
+    <string name="restoring">Restoring</string>
+    <string name="delete_question">Delete %s?</string>
+
     <!-- Build prop Editor -->
     <string name="items_found">%d item/s found</string>
-    <string name="backup">Backup</string>
     <string name="add">Add</string>
     <string name="edit">Edit</string>
-    <string name="delete">Delete</string>
     <string name="key">Key</string>
     <string name="value">Value</string>
-    <string name="delete_prop">Delete %s?</string>
     <string name="backup_created">Backup has been created in %s.</string>
     <string name="search">Search</string>
 
@@ -448,9 +552,9 @@
     <string name="no_profiles">No profiles</string>
     <string name="profile_description">Adding a profile will save your current settings. You can apply them later.</string>
     <string name="name">Name</string>
+    <string name="select_all">Select all</string>
     <string name="apply">Apply</string>
     <string name="no_settings">No settings found!</string>
-    <string name="empty_name">Name is empty</string>
     <string name="press_again_to_apply">Press again to apply.</string>
     <string name="applied">Applied</string>
 
@@ -465,7 +569,6 @@
     <string name="wipe_data">Wipe Data</string>
     <string name="wipe_cache">Wipe Cache</string>
     <string name="flash_zip">Flash Zip</string>
-    <string name="went_wrong">Something went wrong!</string>
     <string name="flash_now">Flash Now</string>
     <string name="flash_now_confirm">Do you want to run your actions? Your device will reboot into recovery and the actions will run in the order as you added them.</string>
     <string name="add_action_first">You have to add an action first.</string>
@@ -499,6 +602,18 @@
     <string name="last_kmsg_summary">Copy /proc/last_kmsg to /sdcard/last_kmsg.txt</string>
     <string name="driver_message">Driver Message</string>
     <string name="driver_message_summary">Copy driver message (dmesg) to /sdcard/dmesg.txt</string>
+    <string name="security">Security</string>
+    <string name="set_password">Set Password</string>
+    <string name="set_password_summary">You can protect Kernel Adiutor by setting up a password. Every time you open this application, you have to enter it. If you forget it, simply wipe the data of this application in settings of your phone. Don\'t worry I won\'t share your password. </string>
+    <string name="delete_password">Delete Password</string>
+    <string name="new_password">New password</string>
+    <string name="confirm_new_password">Confirm new password</string>
+    <string name="old_password">Old password</string>
+    <string name="old_password_wrong">Old password is wrong</string>
+    <string name="password_empty">Password is empty</string>
+    <string name="password_not_match">Password doesn\'t match confirmation</string>
+    <string name="password_too_long">Password is too long</string>
+    <string name="set_password_first">Set a password first</string>
 
     <!-- FAQ -->
     <string name="misspelled">Why did you misspell \"Auditor\"?</string>
@@ -515,18 +630,24 @@
     <!-- About us -->
     <string name="license">License</string>
     <string name="app_license">Kernel Adiutor is licensed under the Apache License, Version 2.0, and uses following libraries</string>
-    <string name="support_v13">v13 Support Library</string>
     <string name="appcompat_v7">v7 Appcompat Library</string>
     <string name="cardview_v7">v7 Cardview Library</string>
     <string name="recyclerview_v7">v7 Recyclerview Library</string>
     <string name="google">Google</string>
     <string name="fab">FloatingActionButton</string>
     <string name="jerzy">Jerzy Chałupski</string>
+    <string name="dashclock">Dashclock</string>
+    <string name="nurik">Roman Nurik</string>
+    <string name="nineoldandroids">NineOldAndroids</string>
+    <string name="wharton">Jake Wharton</string>
+    <string name="picasso">Picasso</string>
+    <string name="square">Square Inc.</string>
+    <string name="materialtabs">MaterialTabs</string>
+    <string name="frenn">Karim Frenn</string>
     <string name="open_source">Open source</string>
     <string name="open_source_summary">This application is open source. Check it out on my Github.</string>
     <string name="feature_request">Feature request</string>
     <string name="feature_request_summary">Do you want more features? Open a new issue on Github and tell me your idea.</string>
-    <string name="google_plus">Google Plus</string>
     <string name="google_plus_summary">Join our community.</string>
     <string name="translation">Translation</string>
     <string name="translation_summary">Help me to translate this app!</string>

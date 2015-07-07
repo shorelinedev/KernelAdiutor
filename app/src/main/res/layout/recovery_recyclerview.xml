@@ -2,8 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:fab="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:id="@+id/background_view"
@@ -17,7 +16,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:paddingLeft="72dp" />
+            android:paddingEnd="16dp"
+            android:paddingLeft="72dp"
+            android:paddingRight="16dp"
+            android:paddingStart="72dp" />
 
     </LinearLayout>
 
@@ -30,7 +32,7 @@
         android:scrollbarStyle="outsideOverlay"
         android:scrollbars="vertical" />
 
-    <com.getbase.floatingactionbutton.FloatingActionsMenu
+    <net.i2p.android.ext.floatingactionbutton.FloatingActionsMenu
         android:id="@+id/fab_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -48,7 +50,7 @@
         fab:fab_labelStyle="@style/menu_labels_style"
         fab:fab_labelsPosition="right">
 
-        <com.getbase.floatingactionbutton.FloatingActionButton
+        <net.i2p.android.ext.floatingactionbutton.FloatingActionButton
             android:id="@+id/wipe_data_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -57,7 +59,7 @@
             fab:fab_size="mini"
             fab:fab_title="@string/wipe_data" />
 
-        <com.getbase.floatingactionbutton.FloatingActionButton
+        <net.i2p.android.ext.floatingactionbutton.FloatingActionButton
             android:id="@+id/wipe_cache_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -66,7 +68,7 @@
             fab:fab_size="mini"
             fab:fab_title="@string/wipe_cache" />
 
-        <com.getbase.floatingactionbutton.FloatingActionButton
+        <net.i2p.android.ext.floatingactionbutton.FloatingActionButton
             android:id="@+id/flash_zip_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -75,6 +77,6 @@
             fab:fab_size="mini"
             fab:fab_title="@string/flash_zip" />
 
-    </com.getbase.floatingactionbutton.FloatingActionsMenu>
+    </net.i2p.android.ext.floatingactionbutton.FloatingActionsMenu>
 
 </RelativeLayout>

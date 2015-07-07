@@ -20,8 +20,10 @@ import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.RecyclerView;
@@ -32,7 +34,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.grarak.kerneladiutor.R;
-import com.grarak.kerneladiutor.elements.CardViewItem;
+import com.grarak.kerneladiutor.elements.cards.CardViewItem;
 import com.grarak.kerneladiutor.elements.DAdapter;
 import com.grarak.kerneladiutor.fragments.RecyclerViewFragment;
 import com.grarak.kerneladiutor.services.ProfileWidget;
@@ -64,7 +66,7 @@ public class ProfileFragment extends RecyclerViewFragment {
 
     @Override
     public RecyclerView getRecyclerView() {
-        View view = getParentView(R.layout.profile_recyclerview);
+        View view = getParentView(R.layout.fab_recyclerview);
         title = (TextView) view.findViewById(R.id.title_view);
         return (RecyclerView) view.findViewById(R.id.recycler_view);
     }
@@ -93,18 +95,21 @@ public class ProfileFragment extends RecyclerViewFragment {
                 linearLayout.addView(profileName);
 
                 ScrollView scrollView = new ScrollView(getActivity());
-                scrollView.setPadding(0, 10, 0, 10);
+                scrollView.setPadding(0, 0, 0, 10);
                 linearLayout.addView(scrollView);
 
                 LinearLayout checkBoxLayout = new LinearLayout(getActivity());
                 checkBoxLayout.setOrientation(LinearLayout.VERTICAL);
                 scrollView.addView(checkBoxLayout);
 
+                AppCompatButton selectAllButton = new AppCompatButton(getActivity());
+                selectAllButton.setText(getString(R.string.select_all));
+                checkBoxLayout.addView(selectAllButton);
+
                 boolean load = true;
                 String start = getString(R.string.kernel);
                 String stop = getString(R.string.tools);
-                final List<Class> fragments = new ArrayList<>();
-                final List<AppCompatCheckBox> checkBoxes = new ArrayList<>();
+                final LinkedHashMap<Class, AppCompatCheckBox> items = new LinkedHashMap<>();
                 for (DAdapter.DView item : Constants.ITEMS) {
                     if (item.getTitle() != null) {
                         if (item.getTitle().equals(start)) load = false;
@@ -112,13 +117,20 @@ public class ProfileFragment extends RecyclerViewFragment {
                         if (item.getFragment() != null && !load) {
                             AppCompatCheckBox checkBox = new AppCompatCheckBox(getActivity());
                             checkBox.setText(item.getTitle());
-                            fragments.add(item.getFragment().getClass());
                             checkBoxLayout.addView(checkBox);
 
-                            checkBoxes.add(checkBox);
+                            items.put(item.getFragment().getClass(), checkBox);
                         }
                     }
                 }
+
+                selectAllButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        for (Object checkbox : items.values().toArray())
+                            ((AppCompatCheckBox) checkbox).setChecked(true);
+                    }
+                });
 
                 AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
                 dialog.setView(linearLayout).setNegativeButton(getString(R.string.cancel),
@@ -136,9 +148,9 @@ public class ProfileFragment extends RecyclerViewFragment {
                                         ProfileDB profileDB = new ProfileDB(getActivity());
 
                                         List<String> applys = new ArrayList<>();
-                                        for (int i = 0; i < fragments.size(); i++)
-                                            if (checkBoxes.get(i).isChecked())
-                                                applys.addAll(Utils.getApplys(fragments.get(i)));
+                                        for (int i = 0; i < items.size(); i++)
+                                            if (((AppCompatCheckBox) items.values().toArray()[i]).isChecked())
+                                                applys.addAll(Utils.getApplys((Class) items.keySet().toArray()[i]));
 
                                         final LinkedHashMap<String, String> commands = new LinkedHashMap<>();
                                         for (CommandDB.CommandItem commandItem : commandItems)
@@ -191,72 +203,40 @@ public class ProfileFragment extends RecyclerViewFragment {
             mProfileCard.setOnDCardListener(new CardViewItem.DCardView.OnDCardListener() {
                 @Override
                 public void onClick(CardViewItem.DCardView dCardView) {
-                    AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
-                    dialog.setItems(getResources().getStringArray(R.array.profile_menu),
+                    new AlertDialog.Builder(getActivity()).setItems(getResources().getStringArray(R.array.profile_menu),
                             new DialogInterface.OnClickListener() {
                                 @Override
-                                public void onClick(DialogInterface dialog, final int which) {
-                                    new Thread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            switch (which) {
-                                                case 0:
-                                                    ProfileDB.ProfileItem profileItem = profileItems.get(position);
-                                                    List<String> paths = profileItem.getPath();
-                                                    for (int i = 0; i < paths.size(); i++) {
-                                                        Control.commandSaver(getActivity(), paths.get(i),
-                                                                profileItem.getCommands().get(i));
-                                                        RootUtils.runCommand(profileItem.getCommands().get(i));
-                                                    }
-                                                    break;
-                                                case 1:
-                                                    ProfileDB profileDB = new ProfileDB(getActivity());
-                                                    profileDB.delete(position);
-
-                                                    profileDB.commit();
-
-                                                    getHandler().post(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            create();
-                                                        }
-                                                    });
-                                                    break;
-                                                case 2:
-                                                    getActivity().runOnUiThread(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            ScrollView scrollView = new ScrollView(getActivity());
-                                                            scrollView.setBackgroundColor(getResources()
-                                                                    .getColor(R.color.color_primary_dark));
-
-                                                            String text = "";
-                                                            TextView textView = new TextView(getActivity());
-                                                            textView.setBackgroundColor(getResources()
-                                                                    .getColor(R.color.color_primary_dark));
-                                                            textView.setTextColor(getResources().getColor(android.R.color.white));
-                                                            textView.setPadding(0, 20, 0, 20);
-
-                                                            ProfileDB.ProfileItem profileItem = profileItems.get(position);
-                                                            for (String command : profileItem.getCommands())
-                                                                text += text.isEmpty() ? command : "\n" + command;
-
-                                                            textView.setText(text);
-                                                            scrollView.addView(textView);
-
-                                                            ScrollView.LayoutParams layoutParams = (ScrollView.LayoutParams)
-                                                                    textView.getLayoutParams();
-                                                            layoutParams.setMargins(30, 0, 30, 0);
-                                                            textView.requestLayout();
-
-                                                            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
-                                                            dialog.setView(scrollView).show();
-                                                        }
-                                                    });
-                                                    break;
+                                public void onClick(DialogInterface dialog, int which) {
+                                    ProfileDB.ProfileItem profileItem = profileItems.get(position);
+                                    switch (which) {
+                                        case 0:
+                                            List<String> paths = profileItem.getPath();
+                                            for (int i = 0; i < paths.size(); i++) {
+                                                Control.commandSaver(getActivity(), paths.get(i),
+                                                        profileItem.getCommands().get(i));
+                                                RootUtils.runCommand(profileItem.getCommands().get(i));
                                             }
-                                        }
-                                    }).start();
+                                            break;
+                                        case 1:
+                                            ProfileDB profileDB = new ProfileDB(getActivity());
+                                            profileDB.delete(position);
+
+                                            profileDB.commit();
+
+                                            getHandler().post(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    create();
+                                                }
+                                            });
+                                            break;
+                                        case 2:
+                                            String text = "";
+                                            for (String command : profileItem.getCommands())
+                                                text += text.isEmpty() ? command : "\n" + command;
+                                            new AlertDialog.Builder(getActivity()).setMessage(text.trim()).show();
+                                            break;
+                                    }
                                 }
                             }).show();
                 }
@@ -265,7 +245,7 @@ public class ProfileFragment extends RecyclerViewFragment {
             addView(mProfileCard);
         }
 
-        getActivity().runOnUiThread(new Runnable() {
+        if (isAdded()) getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 title.setText(getCount() < 1 ? getString(R.string.no_profiles) : getString(R.string.items_found, getCount()));
@@ -273,9 +253,11 @@ public class ProfileFragment extends RecyclerViewFragment {
         });
 
         // Update Profilewidget here
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(getActivity());
-        int appWidgetIds[] = appWidgetManager.getAppWidgetIds(new ComponentName(getActivity(), ProfileWidget.class));
-        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.profile_list);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(getActivity());
+            int appWidgetIds[] = appWidgetManager.getAppWidgetIds(new ComponentName(getActivity(), ProfileWidget.class));
+            appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.profile_list);
+        }
     }
 
 }

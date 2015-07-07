@@ -40,7 +40,7 @@ public class CPU implements Constants {
 
     private static String TEMP_FILE;
 
-    private static String TEMP_LIMIT_FILE;
+    private static String[] mCpuQuietAvailableGovernors;
 
     private static String CPU_BOOST_ENABLE_FILE;
 
@@ -133,49 +133,45 @@ public class CPU implements Constants {
         return Utils.existFile(CPU_BOOST);
     }
 
-    public static void setTempLimit(int value, Context context) {
-        if (TEMP_LIMIT_FILE.equals(CPU_TEMPCONTROL_TEMP_LIMIT))
-            value *= 1000;
-
-        Control.runCommand(String.valueOf(value), TEMP_LIMIT_FILE, Control.CommandType.GENERIC, context);
+    public static void setCpuQuietGovernor(String value, Context context) {
+        Control.runCommand(value, CPU_QUIET_CURRENT_GOVERNOR, Control.CommandType.GENERIC, context);
     }
 
-    public static int getTempLimitMax() {
-        if (TEMP_LIMIT_FILE.equals(CPU_TEMPCONTROL_TEMP_LIMIT)) return 80;
-        return 95;
+    public static String getCpuQuietCurGovernor() {
+        return Utils.readFile(CPU_QUIET_CURRENT_GOVERNOR);
     }
 
-    public static int getTempLimitMin() {
-        if (TEMP_LIMIT_FILE.equals(CPU_TEMPCONTROL_TEMP_LIMIT)) return 60;
-        return 50;
-    }
-
-    public static List<String> getTempLimitList() {
-        List<String> list = new ArrayList<>();
-        for (float i = getTempLimitMin(); i <= getTempLimitMax(); i++)
-            list.add((i + "°C" + " " + Utils.celsiusToFahrenheit(i) + "°F"));
-        return list;
-    }
-
-    public static int getCurTempLimit() {
-        if (TEMP_LIMIT_FILE != null) {
-            int value = Utils.stringToInt(Utils.readFile(TEMP_LIMIT_FILE));
-            if (TEMP_LIMIT_FILE.equals(CPU_TEMPCONTROL_TEMP_LIMIT))
-                value /= 1000;
-
-            return value;
+    public static List<String> getCpuQuietAvailableGovernors() {
+        if (mCpuQuietAvailableGovernors == null) {
+            String[] governors = Utils.readFile(CPU_QUIET_AVAILABLE_GOVERNORS).split(" ");
+            if (governors.length > 0) {
+                mCpuQuietAvailableGovernors = new String[governors.length];
+                System.arraycopy(governors, 0, mCpuQuietAvailableGovernors, 0, mCpuQuietAvailableGovernors.length);
+            }
         }
-        return 0;
+        if (mCpuQuietAvailableGovernors == null) return null;
+        return new ArrayList<>(Arrays.asList(mCpuQuietAvailableGovernors));
     }
 
-    public static boolean hasTempLimit() {
-        if (TEMP_LIMIT_FILE == null)
-            for (String file : CPU_TEMP_LIMIT_ARRAY)
-                if (Utils.existFile(file)) {
-                    TEMP_LIMIT_FILE = file;
-                    break;
-                }
-        return TEMP_LIMIT_FILE != null;
+    public static boolean hasCpuQuietGovernors() {
+        return Utils.existFile(CPU_QUIET_AVAILABLE_GOVERNORS) && Utils.existFile(CPU_QUIET_CURRENT_GOVERNOR)
+                && !Utils.readFile(CPU_QUIET_AVAILABLE_GOVERNORS).equals("none");
+    }
+
+    public static void activateCpuQuiet(boolean active, Context context) {
+        Control.runCommand(active ? "1" : "0", CPU_QUIET_ENABLE, Control.CommandType.GENERIC, context);
+    }
+
+    public static boolean isCpuQuietActive() {
+        return Utils.readFile(CPU_QUIET_ENABLE).equals("1");
+    }
+
+    public static boolean hasCpuQuietEnable() {
+        return Utils.existFile(CPU_QUIET_ENABLE);
+    }
+
+    public static boolean hasCpuQuiet() {
+        return Utils.existFile(CPU_QUIET);
     }
 
     public static void setCFSScheduler(String value, Context context) {
@@ -343,10 +339,10 @@ public class CPU implements Constants {
     }
 
     public static String getTemp() {
-        long temp = Utils.stringToLong(Utils.readFile(TEMP_FILE));
+        double temp = Utils.stringToLong(Utils.readFile(TEMP_FILE));
         if (temp > 1000) temp /= 1000;
         else if (temp > 200) temp /= 10;
-        return ((double) temp) + "°C" + " " + Utils.celsiusToFahrenheit(temp) + "°F";
+        return Utils.formatCelsius(temp) + " " + Utils.celsiusToFahrenheit(temp);
     }
 
     public static boolean hasTemp() {

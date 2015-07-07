@@ -4,7 +4,7 @@
     <!-- Main Header -->
     <string-array name="main_header_picture_items">
         <item>@string/select_picture</item>
-        <item>@string/default_picture</item>
+        <item>@string/no_picture</item>
     </string-array>
 
     <!-- CPU -->
@@ -12,6 +12,13 @@
         <item>@string/disabled</item>
         <item>@string/enabled</item>
         <item>@string/aggressive</item>
+    </string-array>
+
+    <!-- CPU Hotplug -->
+    <string-array name="thunderplug_endurance_level_items">
+        <item>@string/disabled</item>
+        <item>@string/quad_core_mode</item>
+        <item>@string/dual_core_mode</item>
     </string-array>
 
     <!-- Kernel Samepage Merging -->
@@ -38,6 +45,12 @@
         <item>@string/medium</item>
         <item>@string/aggressive</item>
         <item>@string/very_aggressive</item>
+    </string-array>
+
+    <!-- Backup -->
+    <string-array name="backup_menu">
+        <item>@string/restore</item>
+        <item>@string/delete</item>
     </string-array>
 
     <!-- Build prop -->
